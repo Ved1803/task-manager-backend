@@ -11,4 +11,7 @@ class Task < ApplicationRecord
   }, _prefix: true
 
   # validates :status, presence: true
+    def as_json(options = {})
+      super(options).merge(created_at: created_at.strftime("%d-%m-%Y"))
+    end  
 end
