@@ -21,7 +21,7 @@ module Api
           render json: { errors: comment.errors.full_messages }, status: :unprocessable_entity
         end
       end
-      
+
       private
 
       def comment_params
@@ -30,14 +30,10 @@ module Api
 
       def set_commentable
         @commentable =
-          if params[:task_id]
-            Task.find(params[:task_id])
-          else
-            nil
-          end
+          (Task.find(params[:task_id]) if params[:task_id])
       rescue ActiveRecord::RecordNotFound
-          render json: { error: 'Resource not found' }, status: :not_found
-      end          
+        render json: { error: 'Resource not found' }, status: :not_found
+      end
     end
   end
 end

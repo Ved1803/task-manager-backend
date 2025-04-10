@@ -8,12 +8,12 @@ module Api
 
       def index
         tasks = current_user.admin? ? Task.includes(:user).order(created_at: :desc) : current_user.tasks.order(created_at: :desc)
-        render json: tasks, status: :ok 
+        render json: tasks, status: :ok
       end
 
       def show
         task = Task.find_by(id: params[:id])
-      
+
         if task
           render json: {
             task: task.as_json(
@@ -26,8 +26,8 @@ module Api
         else
           render json: { error: "Task Not Found" }, status: :not_found
         end
-      end 
-      
+      end
+
       # def user_assignee
       #   user = current_user
 
@@ -75,13 +75,14 @@ module Api
       private
 
       def task_params
-        params.require(:task).permit(:title, :description, :status, :reported_by, :assigned_to, :priority, :due_date, :category)
+        params.require(:task).permit(:title, :description, :status, :reported_by, :assigned_to,
+                                     :priority, :due_date, :category)
       end
 
       def current_user_and_admin_task
         @task = current_user.admin? ? Task.find(params[:id]) : current_user.tasks.find(params[:id])
       rescue ActiveRecord::RecordNotFound
-        render json: {error: 'Task not found'}, status: :not_found
+        render json: { error: 'Task not found' }, status: :not_found
       end
     end
   end

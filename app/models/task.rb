@@ -16,7 +16,7 @@ class Task < ApplicationRecord
   enum priority: { low: 0, medium: 1, high: 2, critical: 3 }, _prefix: true
 
   # validates :status, presence: true
-    def as_json(options = {})
-      super(options).merge(created_at: created_at.strftime("%d-%m-%Y"))
-    end  
+  def as_json(options = {})
+    super(options).merge(created_at: created_at.strftime("%d-%m-%Y"))
+  end
 end
