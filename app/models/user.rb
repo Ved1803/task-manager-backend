@@ -9,6 +9,7 @@ class User < ApplicationRecord
   has_many :tasks
   has_many :reported_tasks, class_name: "Task", foreign_key: "reported_by", dependent: :destroy
   has_many :assigned_tasks, class_name: "Task", foreign_key: "assigned_to", dependent: :destroy
+  has_many :comments, dependent: :destroy
 
   enum role: { member: 0, admin: 1 }
 end

@@ -4,6 +4,7 @@ class Task < ApplicationRecord
   belongs_to :user
   belongs_to :reporter, class_name: "User", foreign_key: "reported_by", optional: true
   belongs_to :assignee, class_name: "User", foreign_key: "assigned_to", optional: true
+  has_many :comments, as: :commentable, dependent: :destroy
 
   enum status: {
     pending: 0,
