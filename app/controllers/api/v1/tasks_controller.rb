@@ -15,11 +15,36 @@ module Api
         task = Task.find_by(id: params[:id])
       
         if task
-          render json: { task: task }, status: :ok
+          render json: {
+            task: task.as_json(
+              include: {
+                assignee: { only: [:id, :name, :email] },
+                reporter: { only: [:id, :name, :email] }
+              }
+            )
+          }, status: :ok
         else
           render json: { error: "Task Not Found" }, status: :not_found
         end
-      end
+      end 
+      
+      # def user_assignee
+      #   user = current_user
+
+      #   all_task_with_current_user_assignee = Task.where(assignee: user).include(:assignee, :reporter)
+      #   if all_task_with_current_user_assignee.any?
+      #     render json: {
+      #       task: all_task_with_current_user_assignee.as_json(
+      #         include: {
+      #           assignee: {},
+      #           reporter: {}
+      #         }
+      #       )
+      #     }, status: :ok
+      #   else
+      #     render json: {error: "task not found"}, status: :not_found
+      #   end
+      # end
 
       def create
         task = current_user.tasks.build(task_params)
@@ -31,8 +56,8 @@ module Api
       end
 
       def update
-        if @task.update(status: params[:status])
-          render json: { message: 'Task status updated successfully', task: @task }, status: :ok
+        if @task.update(task_params)
+          render json: { message: 'Task updated successfully', task: @task }, status: :ok
         else
           render json: { error: 'Failed to update task status', errors: @task.errors.full_messages },
                  status: :unprocessable_entity
@@ -50,7 +75,7 @@ module Api
       private
 
       def task_params
-        params.require(:task).permit(:title, :description, :status)
+        params.require(:task).permit(:title, :description, :status, :reported_by, :assigned_to, :priority, :due_date, :category)
       end
 
       def current_user_and_admin_task
@@ -61,4 +86,3 @@ module Api
     end
   end
 end
-  
