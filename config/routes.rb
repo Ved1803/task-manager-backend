@@ -12,7 +12,11 @@ Rails.application.routes.draw do
                      }
   namespace :api do
     namespace :v1 do
-      resources :users, only: [:index]
+      resources :users, only: [:show, :index, :update] do
+        collection do
+          get :user_current
+        end
+      end
       resources :tasks do
         resources :comments, only: [:create, :index]
       end

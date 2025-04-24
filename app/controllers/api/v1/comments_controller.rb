@@ -5,7 +5,6 @@ module Api
     class CommentsController < ApplicationController
       before_action :authenticate_user!
 
-      before_action :comment_params, only: %i[create]
       before_action :set_commentable, only: %i[create index]
 
       def index
@@ -16,7 +15,7 @@ module Api
       def create
         comment = @commentable.comments.build(comment_params.merge(user: current_user))
         if comment.save
-          render json: comment, status: :created
+          render json: comment.as_json(include: :user), status: :created
         else
           render json: { errors: comment.errors.full_messages }, status: :unprocessable_entity
         end

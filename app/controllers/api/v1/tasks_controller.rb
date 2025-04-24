@@ -21,6 +21,8 @@ module Api
                 assignee: { only: [:id, :name, :email] },
                 reporter: { only: [:id, :name, :email] }
               }
+            ).merge(
+              image_urls: (task.images.map { |image| url_for(image) } if task.images.any?)
             )
           }, status: :ok
         else
@@ -49,7 +51,9 @@ module Api
       def create
         task = current_user.tasks.build(task_params)
         if task.save
-          render json: { message: 'Task added', task: task }, status: :created
+          render json: { message: 'Task added', task: task.as_json.merge(
+            image_urls: (task.images.map { |image| url_for(image) } if task.images.any?)
+          ) }, status: :created
         else
           render json: { error: task.errors.full_messages }, status: :unprocessable_entity
         end
@@ -76,7 +80,7 @@ module Api
 
       def task_params
         params.require(:task).permit(:title, :description, :status, :reported_by, :assigned_to,
-                                     :priority, :due_date, :category)
+                                     :priority, :due_date, :category, images: [])
       end
 
       def current_user_and_admin_task

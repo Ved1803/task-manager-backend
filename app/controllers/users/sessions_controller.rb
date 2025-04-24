@@ -7,7 +7,7 @@ module Users
     def create
       super
 
-      session[ "warden.user.user.key"] =nil
+      session["warden.user.user.key"] = nil
     end
 
     private
