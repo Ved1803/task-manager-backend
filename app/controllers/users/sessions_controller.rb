@@ -4,6 +4,12 @@ module Users
   class SessionsController < Devise::SessionsController
     respond_to :json
 
+    def create
+      super
+
+      session["warden.user.user.key"] = nil
+    end
+
     private
 
     def respond_with(resource, _opt = {})

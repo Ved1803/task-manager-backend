@@ -4,6 +4,8 @@ class Task < ApplicationRecord
   belongs_to :user
   belongs_to :reporter, class_name: "User", foreign_key: "reported_by", optional: true
   belongs_to :assignee, class_name: "User", foreign_key: "assigned_to", optional: true
+  has_many :comments, as: :commentable, dependent: :destroy
+  has_many_attached :images
 
   enum status: {
     pending: 0,
@@ -15,7 +17,7 @@ class Task < ApplicationRecord
   enum priority: { low: 0, medium: 1, high: 2, critical: 3 }, _prefix: true
 
   # validates :status, presence: true
-    def as_json(options = {})
-      super(options).merge(created_at: created_at.strftime("%d-%m-%Y"))
-    end  
+  def as_json(options = {})
+    super(options).merge(created_at: created_at.strftime("%d-%m-%Y"))
+  end
 end

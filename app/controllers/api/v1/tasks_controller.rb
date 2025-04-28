@@ -8,12 +8,12 @@ module Api
 
       def index
         tasks = current_user.admin? ? Task.includes(:user).order(created_at: :desc) : current_user.tasks.order(created_at: :desc)
-        render json: tasks, status: :ok 
+        render json: tasks, status: :ok
       end
 
       def show
         task = Task.find_by(id: params[:id])
-      
+
         if task
           render json: {
             task: task.as_json(
@@ -21,13 +21,15 @@ module Api
                 assignee: { only: [:id, :name, :email] },
                 reporter: { only: [:id, :name, :email] }
               }
+            ).merge(
+              image_urls: (task.images.map { |image| url_for(image) } if task.images.any?)
             )
           }, status: :ok
         else
           render json: { error: "Task Not Found" }, status: :not_found
         end
-      end 
-      
+      end
+
       # def user_assignee
       #   user = current_user
 
@@ -49,7 +51,9 @@ module Api
       def create
         task = current_user.tasks.build(task_params)
         if task.save
-          render json: { message: 'Task added', task: task }, status: :created
+          render json: { message: 'Task added', task: task.as_json.merge(
+            image_urls: (task.images.map { |image| url_for(image) } if task.images.any?)
+          ) }, status: :created
         else
           render json: { error: task.errors.full_messages }, status: :unprocessable_entity
         end
@@ -75,13 +79,14 @@ module Api
       private
 
       def task_params
-        params.require(:task).permit(:title, :description, :status, :reported_by, :assigned_to, :priority, :due_date, :category)
+        params.require(:task).permit(:title, :description, :status, :reported_by, :assigned_to,
+                                     :priority, :due_date, :category, images: [])
       end
 
       def current_user_and_admin_task
         @task = current_user.admin? ? Task.find(params[:id]) : current_user.tasks.find(params[:id])
       rescue ActiveRecord::RecordNotFound
-        render json: {error: 'Task not found'}, status: :not_found
+        render json: { error: 'Task not found' }, status: :not_found
       end
     end
   end
