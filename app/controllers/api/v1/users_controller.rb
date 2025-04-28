@@ -19,6 +19,15 @@ module Api
         end
       end
 
+      def show
+        user = User.find(params[:id])
+        if user
+          render json: user_data(user)
+        else
+          render json: { errors: "User not found" }, status: :not_found
+        end
+      end
+
       def update
         user = User.find(params[:id])
         if user.update(user_params)
