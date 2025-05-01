@@ -20,7 +20,7 @@ Rails.application.routes.draw do
       resources :projects do
         resources :tasks, only: %i[create]
       end
-      resources :tasks do, expect: %i[create]
+      resources :tasks, expect: %i[create] do
         resources :comments, only: %i[create index]
       end
     end
