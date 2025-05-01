@@ -4,7 +4,7 @@ module Api
   module V1
     class UsersController < ApplicationController
       def index
-        users = User.all.includes(avatar_attachment: :blob)
+        users = User.includes(avatar_attachment: :blob).all
         render json: users.map { |user|
           user_data(user)
         }

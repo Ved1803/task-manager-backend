@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_04_16_203937) do
+ActiveRecord::Schema[7.1].define(version: 2025_04_30_171102) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -55,6 +55,14 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_16_203937) do
     t.index ["user_id"], name: "index_comments_on_user_id"
   end
 
+  create_table "projects", force: :cascade do |t|
+    t.string "name"
+    t.text "description"
+    t.integer "created_by"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "tasks", force: :cascade do |t|
     t.string "title"
     t.text "description"
@@ -67,7 +75,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_16_203937) do
     t.integer "priority"
     t.datetime "due_date"
     t.string "category"
+    t.bigint "project_id", null: false
     t.index ["assigned_to"], name: "index_tasks_on_assigned_to"
+    t.index ["project_id"], name: "index_tasks_on_project_id"
     t.index ["reported_by"], name: "index_tasks_on_reported_by"
     t.index ["user_id"], name: "index_tasks_on_user_id"
   end
@@ -91,6 +101,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_16_203937) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "comments", "users"
+  add_foreign_key "tasks", "projects"
   add_foreign_key "tasks", "users"
   add_foreign_key "tasks", "users", column: "assigned_to"
   add_foreign_key "tasks", "users", column: "reported_by"

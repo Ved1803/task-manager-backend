@@ -30,24 +30,6 @@ module Api
         end
       end
 
-      # def user_assignee
-      #   user = current_user
-
-      #   all_task_with_current_user_assignee = Task.where(assignee: user).include(:assignee, :reporter)
-      #   if all_task_with_current_user_assignee.any?
-      #     render json: {
-      #       task: all_task_with_current_user_assignee.as_json(
-      #         include: {
-      #           assignee: {},
-      #           reporter: {}
-      #         }
-      #       )
-      #     }, status: :ok
-      #   else
-      #     render json: {error: "task not found"}, status: :not_found
-      #   end
-      # end
-
       def create
         task = current_user.tasks.build(task_params)
         if task.save
@@ -80,7 +62,7 @@ module Api
 
       def task_params
         params.require(:task).permit(:title, :description, :status, :reported_by, :assigned_to,
-                                     :priority, :due_date, :category, images: [])
+                                     :priority, :due_date, :project_id, :category, images: [])
       end
 
       def current_user_and_admin_task
