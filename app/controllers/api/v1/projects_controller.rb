@@ -4,7 +4,7 @@ module Api
   module V1
     class ProjectsController < ApplicationController
       before_action :authenticate_user!
-      before_action :set_project, only: [:update, :destroy]
+      before_action :set_project, only: [:update, :destroy, :assign_users, :show_assign_users]
 
       def index
         @projects = Project.includes(:creator).all
@@ -43,6 +43,25 @@ module Api
         else
           render json: { errors: @project.errors.full_messages }, status: :unprocessable_entity
         end
+      end
+
+      def assign_users
+        user_ids = params[:user_ids] || []
+        @project.user_ids = user_ids
+
+        if project.save
+          render json: { message: "Users assigned successfully", users: @project.users }, status: :ok
+        else
+          render json: { errors: @project.errors.full_messages }, status: :unprocessable_entity
+        end
+      end
+
+      def show_assign_users
+        render json: @project.users.map { |user|
+        user.as_json.merge(
+          avatar_url: (user.avatar.attached? ? url_for(user.avatar) : nil)
+        )
+        }
       end
 
       def destroy

@@ -13,5 +13,8 @@ class User < ApplicationRecord
   has_many :created_projects, class_name: 'Project', foreign_key: 'created_by', dependent: :destroy
   has_one_attached :avatar
 
+  has_many :project_users
+  has_many :projects, through: :project_users
+
   enum role: { member: 0, admin: 1 }
 end
