@@ -14,17 +14,10 @@ module Api
       def show
         project = Project.includes(:tasks, :creator).find(params[:id])
 
-        render json: project.as_json(
-          include: {
-            tasks: {
-              include: {
-                assignee: { only: %i[id name] },
-                reporter: { only: %i[id name] }
-              }
-            },
-            creator: { only: %i[id name email] }
-          }
-        )
+        render json: {
+              project: ProjectSerializer.new(project).serializable_hash[:data][:attributes], 
+              message: 'Project retrieved successfully',
+          }, status: :ok 
       end
 
       def create
@@ -54,14 +47,6 @@ module Api
         else
           render json: { errors: @project.errors.full_messages }, status: :unprocessable_entity
         end
-      end
-
-      def show_assign_users
-        render json: @project.users.map { |user|
-        user.as_json.merge(
-          avatar_url: (user.avatar.attached? ? url_for(user.avatar) : nil)
-        )
-        }
       end
 
       def destroy

@@ -20,7 +20,6 @@ Rails.application.routes.draw do
       resources :projects do
         member do
           put :assign_users
-          get :show_assign_users
         end
         resources :tasks, only: %i[create]
       end
