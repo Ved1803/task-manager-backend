@@ -7,4 +7,14 @@ class Project < ApplicationRecord
   validates :name, presence: true
   validates :description, presence: true
   validates :created_by, presence: true
+  enum priority: { low: 1, medium: 0, high: 2 }
+  enum status: {
+    active: 0,
+    planned: 1,
+    on_hold: 2,
+    completed: 3,
+    cancelled: 4,
+    archived: 5
+  }
+  
 end

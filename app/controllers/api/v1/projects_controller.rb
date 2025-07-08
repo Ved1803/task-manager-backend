@@ -4,7 +4,7 @@ module Api
   module V1
     class ProjectsController < ApplicationController
       before_action :authenticate_user!
-      before_action :set_project, only: [:update, :destroy, :assign_users, :show_assign_users]
+      before_action :set_project, only: [:update, :destroy, :assign_users]
 
       def index
         @projects = Project.includes(:creator).all
@@ -31,6 +31,7 @@ module Api
       end
 
       def update
+        debugger
         if @project.update(project_params)
           render json: @project, include: :creator
         else
@@ -40,14 +41,22 @@ module Api
 
       def assign_users
         user_ids = params[:user_ids] || []
-        @project.user_ids = user_ids
-
-        if project.save
+        existing_user_ids = @project.user_ids
+      
+        new_user_ids = user_ids.map(&:to_i) - existing_user_ids
+      
+        new_user_ids.each do |uid|
+          user = User.find_by(id: uid)
+          @project.users << user if user
+        end
+      
+        if @project.save
           render json: { message: "Users assigned successfully", users: @project.users }, status: :ok
         else
           render json: { errors: @project.errors.full_messages }, status: :unprocessable_entity
         end
       end
+      
 
       def destroy
         @project.destroy
@@ -61,7 +70,7 @@ module Api
       end
 
       def project_params
-        params.require(:project).permit(:name, :description)
+        params.require(:project).permit(:name, :description, :status, :start_date, :end_date, :priority, :budget, :client_name)
       end
     end
   end

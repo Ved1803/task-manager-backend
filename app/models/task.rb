@@ -9,10 +9,10 @@ class Task < ApplicationRecord
   has_many_attached :images
 
   enum status: {
-    pending: 0,
-    done: 1,
-    todo: 2,
-    in_progress: 3
+    todo: 0,
+    in_progress: 1,
+    review: 2,
+    done: 3
   }, _prefix: true
 
   enum priority: { low: 0, medium: 1, high: 2, critical: 3 }, _prefix: true

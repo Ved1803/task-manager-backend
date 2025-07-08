@@ -21,7 +21,11 @@ Rails.application.routes.draw do
         member do
           put :assign_users
         end
-        resources :tasks, only: %i[create]
+        resources :tasks, only: %i[create] do 
+          collection do
+            get :grouped_by_status
+          end
+        end
       end
       resources :tasks, expect: %i[create] do
         resources :comments, only: %i[create index]

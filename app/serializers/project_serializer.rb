@@ -2,7 +2,7 @@
 
 class ProjectSerializer
     include JSONAPI::Serializer
-    attributes :id, :name, :description
+    attributes :id, :name, :description, :status, :start_date, :end_date, :priority, :budget, :client_name
 
     # TaskSerializer
     attribute :tasks do |object|
@@ -23,8 +23,8 @@ class ProjectSerializer
         object.tasks&.where(status: 'done')&.count
     end
     
-    attribute :pendingTasks do |object|
-        object.tasks&.where(status: 'pending')&.count
+    attribute :reviewTasks do |object|
+        object.tasks&.where(status: 'review')&.count
     end
 
     attribute :inProgressTasks do |object|
@@ -35,11 +35,11 @@ class ProjectSerializer
         object.created_at.strftime('%Y-%m-%d %H:%M:%S')
     end
 
-    # attribute :assignedUsers do |object|
-    #     object.users.map do |user|
-    #         user.as_json(only: %i[id name email]).merge(
-    #             avatar_url: (user.avatar.attached? ? url_for(user.avatar) : nil)
-    #           )
-    #     end
-    # end
+    attribute :assignedUsers do |object|
+        object.users.map do |user|
+          user.as_json(only: %i[id name email]).merge(
+            avatar_url: user.avatar_url
+          )
+        end
+    end      
 end

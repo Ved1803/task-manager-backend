@@ -58,6 +58,24 @@ module Api
         end
       end
 
+      def grouped_by_status
+        user = params[:user_id]
+        project = Project.find(params[:project_id])
+        
+        tasks = if user.present?
+                  project.tasks.where(assigned_to: user).group_by(&:status)
+                else
+                  project.tasks.all.group_by(&:status)
+                end
+      
+        render json: tasks.transform_values { |tasks| tasks.map { |task| task } }, status: :ok
+      
+      rescue ActiveRecord::RecordNotFound
+        render json: { error: 'User not found' }, status: :not_found
+      rescue StandardError => e
+        render json: { error: e.message }, status: :internal_server_error 
+      end      
+
       private
 
       def task_params

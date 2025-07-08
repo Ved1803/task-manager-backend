@@ -2,6 +2,7 @@
 
 class User < ApplicationRecord
   include Devise::JWT::RevocationStrategies::JTIMatcher
+  include Rails.application.routes.url_helpers
 
   devise :database_authenticatable, :registerable, :recoverable, :validatable, :jwt_authenticatable,
          jwt_revocation_strategy: self
@@ -17,4 +18,8 @@ class User < ApplicationRecord
   has_many :projects, through: :project_users
 
   enum role: { member: 0, admin: 1 }
+
+  def avatar_url
+    avatar.attached? ? rails_blob_url(avatar, only_path: false) : nil
+  end
 end
