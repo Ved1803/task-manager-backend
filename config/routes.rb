@@ -20,6 +20,11 @@ Rails.application.routes.draw do
       resources :projects do
         member do
           put :assign_users
+          post :restore
+        end
+        collection do
+          get :grouped_by_status
+          get :deleted_projects
         end
         resources :tasks, only: %i[create] do 
           collection do

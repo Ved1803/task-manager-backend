@@ -22,3 +22,4 @@ gem 'jsonapi-serializer'
 gem 'rack-cors'
 gem 'rubocop', '~> 1.71', group: :development
 gem 'rubocop-rails', '~> 2.29', group: :development
+gem 'paranoia'

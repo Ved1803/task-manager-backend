@@ -1,4 +1,5 @@
 class Project < ApplicationRecord
+  acts_as_paranoid
   belongs_to :creator, class_name: 'User', foreign_key: 'created_by'
   has_many :tasks, dependent: :destroy
   has_many :project_users
@@ -16,5 +17,8 @@ class Project < ApplicationRecord
     cancelled: 4,
     archived: 5
   }
-  
+
+  scope :search, ->(query) {
+    where("name ILIKE :q OR description ILIKE :q", q: "%#{sanitize_sql_like(query)}%")
+  }
 end

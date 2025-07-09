@@ -7,8 +7,19 @@ module Api
       before_action :set_project, only: [:update, :destroy, :assign_users]
 
       def index
-        @projects = Project.includes(:creator).all
-        render json: @projects, include: :creator
+        @projects = Project.includes(:creator).search(params[:q])
+        render json: @projects, include: :creator, status: :ok
+      end      
+
+      def grouped_by_status
+        projects = Project.includes(:creator).group_by(&:status)
+        grouped_projects = projects.transform_values do |projects|
+          projects.map { |project| ProjectSerializer.new(project).serializable_hash[:data][:attributes] }
+        end
+
+        render json: grouped_projects, status: :ok
+      rescue StandardError => e
+        render json: { error: e.message }, status: :internal_server_error 
       end
 
       def show
@@ -31,7 +42,6 @@ module Api
       end
 
       def update
-        debugger
         if @project.update(project_params)
           render json: @project, include: :creator
         else
@@ -56,11 +66,40 @@ module Api
           render json: { errors: @project.errors.full_messages }, status: :unprocessable_entity
         end
       end
-      
 
       def destroy
-        @project.destroy
-        head :no_content
+        if current_user.admin? || @project.created_by == current_user.id
+          if @project.destroy
+            render json: { message: "Project was soft-deleted successfully." }, status: :ok
+          else
+            render json: { errors: @project.errors.full_messages }, status: :unprocessable_entity
+          end
+        else
+          render json: { error: "You are not authorized to delete this project." }, status: :forbidden
+        end
+      end
+
+      def restore
+        # if !current_user.admin?
+        #   render json: { message: "You are not authorized to restore projects." }
+        #   return
+        # end 
+        @project = Project.only_deleted.find(params[:id])
+
+        if @project.restore
+          render json: { message: "Project was restored successfully." }, status: :ok
+        else
+          render json: { errors: @project.errors.full_messages }, status: :unprocessable_entity
+        end
+      end
+
+      def deleted_projects
+        # if !current_user.admin?
+        #   render json: { message: "You are not authorized to view deleted projects." }
+        #   return
+        # end
+        @deleted_projects = Project.only_deleted.includes(:creator).all
+        render json: @deleted_projects, include: :creator, status: :ok
       end
 
       private

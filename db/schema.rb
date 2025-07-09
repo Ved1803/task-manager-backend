@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_07_07_202848) do
+ActiveRecord::Schema[7.1].define(version: 2025_07_08_181306) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -74,6 +74,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_07_202848) do
     t.integer "priority", default: 1
     t.decimal "budget"
     t.string "client_name"
+    t.datetime "deleted_at"
+    t.index ["deleted_at"], name: "index_projects_on_deleted_at"
   end
 
   create_table "tasks", force: :cascade do |t|
