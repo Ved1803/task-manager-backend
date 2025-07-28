@@ -7,6 +7,7 @@ class Task < ApplicationRecord
   belongs_to :project
   has_many :comments, as: :commentable, dependent: :destroy
   has_many_attached :images
+  has_many :activities, as: :trackable, dependent: :destroy
 
   enum status: {
     todo: 0,

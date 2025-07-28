@@ -5,6 +5,7 @@ module Api
     class TasksController < ApplicationController
       before_action :authenticate_user!
       before_action :current_user_and_admin_task, only: %i[update destroy]
+      after_action :log_task_activity, only: %i[create update destroy]
 
       def index
         tasks = current_user.admin? ? Task.includes(:user).order(created_at: :desc) : current_user.tasks.order(created_at: :desc)
@@ -87,6 +88,19 @@ module Api
         @task = current_user.admin? ? Task.find(params[:id]) : current_user.tasks.find(params[:id])
       rescue ActiveRecord::RecordNotFound
         render json: { error: 'Task not found' }, status: :not_found
+      end
+
+      def log_task_activity
+        return unless @task && current_user
+
+        action = case action_name
+                 when 'create' then 'created_task'
+                 when 'update' then 'updated_task'
+                 when 'destroy' then 'deleted_task'
+                 else 'unknown_action'
+                 end
+
+        ActivityLogger.log(user: current_user, trackable: @task, action: action)
       end
     end
   end

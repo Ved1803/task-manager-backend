@@ -5,6 +5,7 @@ module Api
     class ProjectsController < ApplicationController
       before_action :authenticate_user!
       before_action :set_project, only: [:update, :destroy, :assign_users]
+      after_action :log_project_activity, only: [:create, :update, :destroy, :assign_users, :restore]
 
       def index
         @projects = Project.includes(:creator).search(params[:q])
@@ -110,6 +111,21 @@ module Api
 
       def project_params
         params.require(:project).permit(:name, :description, :status, :start_date, :end_date, :priority, :budget, :client_name)
+      end
+
+      def log_project_activity
+        return unless @project && current_user
+
+        action = case action_name
+                 when 'create' then 'created_project'
+                 when 'update' then 'updated_project'
+                 when 'destroy' then 'deleted_project'
+                 when 'assign_users' then 'assigned_users_to_project'
+                 when 'restore' then 'restored_project'
+                 else 'unknown_action'
+                 end
+
+        ActivityLogger.log(user: current_user, trackable: @project, action: action)
       end
     end
   end

@@ -31,6 +31,11 @@ Rails.application.routes.draw do
             get :grouped_by_status
           end
         end
+        resources :milestones, only: %i[create index update destroy] do
+          collection do
+            get :upcomming
+          end
+        end
       end
       resources :tasks, expect: %i[create] do
         resources :comments, only: %i[create index]

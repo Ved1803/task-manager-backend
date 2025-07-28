@@ -3,6 +3,8 @@
 module Api
   module V1
     class UsersController < ApplicationController
+      after_action :log_user_activity, only: %i[update]
+
       def index
         users = User.includes(avatar_attachment: :blob).all
         render json: users.map { |user|
@@ -47,6 +49,17 @@ module Api
         user.as_json.merge(
           avatar_url: (user.avatar.attached? ? url_for(user.avatar) : nil)
         )
+      end
+
+      def log_user_activity
+        return unless current_user
+
+        action = case action_name
+                 when 'update' then 'updated_profile'
+                 else 'unknown_action'
+                 end
+
+        ActivityLogger.log(user: current_user, trackable: user, action: action) if user
       end
     end
   end
